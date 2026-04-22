@@ -137,6 +137,20 @@ public class GameState {
         return sb.toString();
     }
 
+    /**
+     * Registers a manual click on the tree, awarding 1 apple plus a bonus
+     * equal to 10% of the current APS (minimum 1 total).
+     * Demonstrates relational operator (>) for bonus calculation.
+     * @return the number of apples awarded for this click
+     */
+    public int clickTree() {
+        // Bonus = 10% of APS, but always at least 1 apple per click
+        int bonus = (int)(aps * 0.1);
+        int earned = (bonus > 0) ? 1 + bonus : 1;
+        apples += earned;
+        return earned;
+    }
+
     // ---- Standard getters ----
 
     /**

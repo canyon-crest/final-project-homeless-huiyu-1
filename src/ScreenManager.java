@@ -28,8 +28,14 @@ public class ScreenManager {
     private JLabel treesLabel;
     private JButton upgradeButton;
 
+    /** Floating "+N" label shown briefly on tree click. */
+    private JLabel clickPopLabel;
+
+    /** The tree icon label — stored so we can animate it on click. */
+    private JLabel treeIcon;
+
     /**
-     * Constructs a ScreenManager and initializes the main window.
+     * Constructs a ScreenManager and initialises the main window.
      * @param gameState   the shared game state
      * @param upgradeShop the shop managing tree purchases
      */
@@ -196,13 +202,45 @@ public class ScreenManager {
         statsPanel.add(apsLabel);
         statsPanel.add(treesLabel);
 
-        // --- Center: tree icon ---
+        // --- Center: clickable tree icon ---
         JPanel treePanel = UIFactory.makeSolidPanel(Color.BLACK, 0.35f);
         treePanel.setLayout(new GridBagLayout());
 
-        JLabel treeIcon = new JLabel("\uD83C\uDF33");
+        // Stack the tree icon and the pop label using a layered approach
+        JPanel treeStack = new JPanel();
+        treeStack.setOpaque(false);
+        treeStack.setLayout(new OverlayLayout(treeStack));
+
+        // Floating "+N" pop label (hidden until clicked)
+        clickPopLabel = new JLabel("");
+        clickPopLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        clickPopLabel.setForeground(new Color(255, 220, 50));
+        clickPopLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        clickPopLabel.setVerticalAlignment(SwingConstants.CENTER);
+        clickPopLabel.setAlignmentX(0.5f);
+        clickPopLabel.setAlignmentY(0.2f); // float above the tree
+        clickPopLabel.setVisible(false);
+
+        treeIcon = new JLabel("\uD83C\uDF33");
         treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 130));
-        treePanel.add(treeIcon);
+        treeIcon.setHorizontalAlignment(SwingConstants.CENTER);
+        treeIcon.setVerticalAlignment(SwingConstants.CENTER);
+        treeIcon.setAlignmentX(0.5f);
+        treeIcon.setAlignmentY(0.5f);
+        treeIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        treeIcon.setToolTipText("Click to harvest apples!");
+
+        // Click listener: award apples, bounce the icon, show pop label
+        treeIcon.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                handleTreeClick();
+            }
+        });
+
+        treeStack.add(clickPopLabel);
+        treeStack.add(treeIcon);
+        treePanel.add(treeStack);
 
         // --- Bottom: buttons ---
         JPanel buttonPanel = UIFactory.makeSolidPanel(Color.BLACK, 0.55f);
@@ -226,6 +264,42 @@ public class ScreenManager {
         panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    /**
+     * Handles a manual click on the tree icon.
+     * Awards apples via GameState.clickTree(), bounces the tree icon,
+     * and briefly shows a floating "+N" label.
+     * Demonstrates class interaction: calls gameState.clickTree().
+     */
+    private void handleTreeClick() {
+        int earned = gameState.clickTree();
+        refreshHud();
+
+        // Show the "+N" pop label briefly
+        clickPopLabel.setText("+" + earned);
+        clickPopLabel.setVisible(true);
+
+        // Bounce animation: scale up then back down via font size steps
+        Timer bounceTimer = new Timer(30, null);
+        final int[] step = {0};
+        final int[] sizes = {145, 155, 160, 155, 145, 130};
+        bounceTimer.addActionListener(e -> {
+            if (step[0] < sizes.length) {
+                treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, sizes[step[0]]));
+                step[0]++;
+            } else {
+                // Reset to base size and stop
+                treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 130));
+                bounceTimer.stop();
+            }
+        });
+        bounceTimer.start();
+
+        // Hide the pop label after 600ms
+        Timer fadeTimer = new Timer(600, e -> clickPopLabel.setVisible(false));
+        fadeTimer.setRepeats(false);
+        fadeTimer.start();
     }
 
     /**
