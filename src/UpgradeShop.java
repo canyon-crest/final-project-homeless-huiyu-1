@@ -41,10 +41,12 @@ public class UpgradeShop {
      * Uses the inheritance hierarchy: FruitTree and GoldenTree extend Tree.
      */
     private void buildCatalogue() {
-        catalogue.add(new FruitTree("Sapling",     10,   1,  "Apple"));
-        catalogue.add(new FruitTree("Apple Tree",  50,   5,  "Apple"));
-        catalogue.add(new FruitTree("Orchard Row", 200,  20, "Apple"));
-        catalogue.add(new GoldenTree("Golden Delicious", 1000, 100,
+        catalogue.add(new FruitTree("Honeycrisp",     100,   10,  "Apple"));
+        catalogue.add(new FruitTree("Granny Smith",  450,   50,  "Apple"));
+        catalogue.add(new FruitTree("Fuji", 25000,  300, "Apple"));
+        catalogue.add(new FruitTree("Gala", 90000,  1000, "Apple"));
+        catalogue.add(new FruitTree("Ambrosia", 500000,  8000, "Apple"));
+        catalogue.add(new GoldenTree("Golden Delicious", 1000000, 1000000,
                 "The legendary tree of infinite harvest."));
     }
 
@@ -142,10 +144,10 @@ public class UpgradeShop {
         Tree tree  = catalogue.get(tierIndex);
         int  cost  = getScaledCost(tierIndex);
         int  owned = purchaseCounts[tierIndex];
-        return "<html><b>" + tree.getName() + "</b>"
+        return "<html><b>" + tree.getName() + "<br> </b>"
              + "  [+" + tree.getApsGain() + " APS]"
-             + "<br>Cost: " + cost + " apples"
-             + "  &nbsp; Owned: " + owned + "</html>";
+             + "<br>Cost: " + cost + ""
+             + "  &nbsp; <br> Owned: " + owned + "</html>";
     }
 
     /**

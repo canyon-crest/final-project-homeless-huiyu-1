@@ -263,7 +263,7 @@ public class ScreenManager {
             final int tierIndex = i; // capture for lambda
             JButton btn = UIFactory.makeButton(
                 upgradeShop.getButtonLabel(i),
-                new Color(70, 130, 180), 160, 55, 12
+                new Color(70+10*i, 130-10*i, 180), 160, 120, 12
             );
             btn.setEnabled(upgradeShop.canAfford(i));
             btn.addActionListener(e -> handleTierClick(tierIndex));
