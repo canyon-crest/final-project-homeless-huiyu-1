@@ -26,7 +26,9 @@ public class ScreenManager {
     private JLabel applesLabel;
     private JLabel apsLabel;
     private JLabel treesLabel;
-    private JButton upgradeButton;
+
+    /** One buy button per shop tier, stored so refreshHud() can update them. */
+    private JButton[] tierButtons;
 
     /** Floating "+N" label shown briefly on tree click. */
     private JLabel clickPopLabel;
@@ -70,20 +72,22 @@ public class ScreenManager {
     }
 
     /**
-     * Refreshes all HUD labels from the current GameState.
+     * Refreshes all HUD labels and shop buttons from current game state.
      * Calls gameState methods — class interaction with GameState.
-     * Also calls upgradeShop methods for button label/state.
+     * Also calls upgradeShop methods for each button label/state.
      */
     public void refreshHud() {
         SwingUtilities.invokeLater(() -> {
-            if (applesLabel  != null) applesLabel.setText("Apples: " + gameState.getApples());
-            if (apsLabel     != null) apsLabel.setText("APS: " + gameState.getAps());
-            if (treesLabel   != null) treesLabel.setText("Trees: " + gameState.getTreeCount());
+            if (applesLabel != null) applesLabel.setText("Apples: " + gameState.getApples());
+            if (apsLabel    != null) apsLabel.setText("APS: " + gameState.getAps());
+            if (treesLabel  != null) treesLabel.setText("Trees: " + gameState.getTreeCount());
 
-            if (upgradeButton != null) {
-                // Calls UpgradeShop for label and affordability — class interaction
-                upgradeButton.setText(upgradeShop.getUpgradeButtonLabel());
-                upgradeButton.setEnabled(upgradeShop.canAffordNext());
+            // Loop: update every tier button's label and enabled state
+            if (tierButtons != null) {
+                for (int i = 0; i < tierButtons.length; i++) {
+                    tierButtons[i].setText(upgradeShop.getButtonLabel(i));
+                    tierButtons[i].setEnabled(upgradeShop.canAfford(i));
+                }
             }
         });
     }
@@ -144,6 +148,7 @@ public class ScreenManager {
             // Relational: confirm == YES_OPTION
             if (confirm == JOptionPane.YES_OPTION) {
                 gameState.reset();
+                upgradeShop.reset();
                 refreshHud();
                 showScreen(MAIN_GAME);
             }
@@ -242,22 +247,35 @@ public class ScreenManager {
         treeStack.add(treeIcon);
         treePanel.add(treeStack);
 
-        // --- Bottom: buttons ---
+        // --- Bottom: shop tier buttons + menu ---
         JPanel buttonPanel = UIFactory.makeSolidPanel(Color.BLACK, 0.55f);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        buttonPanel.setLayout(new BorderLayout(8, 0));
 
-        upgradeButton = UIFactory.makeButton(
-            upgradeShop.getUpgradeButtonLabel(),
-            new Color(70, 130, 180), 320, 50, 16
-        );
-        upgradeButton.addActionListener(e -> handleUpgradeClick());
+        // One buy button per tier, laid out in a horizontal row
+        int tierCount = upgradeShop.getTierCount();
+        tierButtons   = new JButton[tierCount];
+        JPanel tierRow = new JPanel(new GridLayout(1, tierCount, 8, 0));
+        tierRow.setOpaque(false);
 
-        JButton menuBtn = UIFactory.makeButton("MENU", new Color(100, 100, 100), 120, 50, 16);
+        // Loop: create a button for each catalogue tier
+        for (int i = 0; i < tierCount; i++) {
+            final int tierIndex = i; // capture for lambda
+            JButton btn = UIFactory.makeButton(
+                upgradeShop.getButtonLabel(i),
+                new Color(70, 130, 180), 160, 55, 12
+            );
+            btn.setEnabled(upgradeShop.canAfford(i));
+            btn.addActionListener(e -> handleTierClick(tierIndex));
+            tierButtons[i] = btn;
+            tierRow.add(btn);
+        }
+
+        JButton menuBtn = UIFactory.makeButton("MENU", new Color(100, 100, 100), 80, 55, 14);
         menuBtn.addActionListener(e -> showScreen(MENU));
 
-        buttonPanel.add(upgradeButton);
-        buttonPanel.add(menuBtn);
+        buttonPanel.add(tierRow,  BorderLayout.CENTER);
+        buttonPanel.add(menuBtn,  BorderLayout.EAST);
 
         panel.add(statsPanel,  BorderLayout.NORTH);
         panel.add(treePanel,   BorderLayout.CENTER);
@@ -303,17 +321,19 @@ public class ScreenManager {
     }
 
     /**
-     * Handles the logic when the player clicks the upgrade/buy button.
-     * Delegates purchase to UpgradeShop, then checks win condition.
+     * Handles the logic when the player clicks a specific tier's buy button.
+     * Delegates purchase to UpgradeShop.buyTree(tierIndex), then checks win condition.
      * Calls multiple methods on UpgradeShop and GameState — class interaction.
+     * @param tierIndex the catalogue index of the tier that was clicked
      */
-    private void handleUpgradeClick() {
-        Tree purchased = upgradeShop.buyNextTree();
+    private void handleTierClick(int tierIndex) {
+        Tree purchased = upgradeShop.buyTree(tierIndex);
 
-        // If statement: purchase may fail if not enough apples
+        // If statement: purchase fails when player can't afford it
         if (purchased == null) {
+            int needed = upgradeShop.getScaledCost(tierIndex);
             JOptionPane.showMessageDialog(frame,
-                "Not enough apples!\nYou need: " + upgradeShop.getNextTree().getCost()
+                "Not enough apples!\nYou need: " + needed
                 + "\nYou have: " + gameState.getApples());
             return;
         }
@@ -322,21 +342,12 @@ public class ScreenManager {
 
         // If statement: check win condition via polymorphism
         if (purchased.isWinCondition()) {
-            // Calls getLegendText() — only available on GoldenTree (polymorphism)
             String legend = ((GoldenTree) purchased).getLegendText();
             JOptionPane.showMessageDialog(frame,
                 "You grew the Golden Delicious!\n\n\"" + legend + "\"\n\nYOU WIN! \uD83C\uDF1F",
                 "Victory!", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            // Show most productive tree — calls GameState's algorithmic method
-            Tree best = gameState.getMostProductiveTree();
-            String bestName = (best != null) ? best.getName() : "none";
-            JOptionPane.showMessageDialog(frame,
-                "Bought: " + purchased.getName() + "!\n"
-                + purchased.getDescription() + "\n\n"
-                + "Best tree so far: " + bestName + "\n"
-                + "Trees owned: " + gameState.getOwnedTreeSummary());
         }
+        // No dialog for normal purchases — the button label updates are feedback enough
     }
 
     // ==================== INSTRUCTIONS PANEL ====================

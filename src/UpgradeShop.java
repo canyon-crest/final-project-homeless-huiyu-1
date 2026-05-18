@@ -3,26 +3,37 @@ import java.util.List;
 
 /**
  * Manages the catalogue of purchasable trees and handles buy logic.
+ * Each tree tier can be purchased multiple times; cost scales up with each purchase.
  * Interacts with GameState to apply purchases.
  *
  * Demonstrates class interaction: UpgradeShop calls methods on GameState.
  */
 public class UpgradeShop {
-    /** The full ordered catalogue of trees available for purchase. */
+    /** The full ordered catalogue of tree tiers. */
     private List<Tree> catalogue;
+
+    /**
+     * How many of each tier the player has bought.
+     * Index matches the catalogue list.
+     */
+    private int[] purchaseCounts;
 
     /** Reference to the game state (class interaction). */
     private GameState gameState;
 
+    /** Cost scaling factor: each purchase raises cost by 15%. */
+    private static final double COST_SCALE = 1.15;
+
     /**
-     * Constructs an UpgradeShop for the given GameState,
+     * Constructs an UpgradeShop for the given GameState
      * and populates the tree catalogue.
      * @param gameState the current game state to apply purchases to
      */
     public UpgradeShop(GameState gameState) {
         this.gameState = gameState;
-        catalogue = new ArrayList<>();
+        catalogue      = new ArrayList<>();
         buildCatalogue();
+        purchaseCounts = new int[catalogue.size()];
     }
 
     /**
@@ -30,82 +41,126 @@ public class UpgradeShop {
      * Uses the inheritance hierarchy: FruitTree and GoldenTree extend Tree.
      */
     private void buildCatalogue() {
-        // Standard FruitTrees (IS-A Tree via FruitTree)
         catalogue.add(new FruitTree("Sapling",     10,   1,  "Apple"));
         catalogue.add(new FruitTree("Apple Tree",  50,   5,  "Apple"));
         catalogue.add(new FruitTree("Orchard Row", 200,  20, "Apple"));
-
-        // GoldenTree IS-A FruitTree IS-A Tree — win condition
         catalogue.add(new GoldenTree("Golden Delicious", 1000, 100,
                 "The legendary tree of infinite harvest."));
     }
 
     /**
-     * Returns the next tree in the catalogue the player hasn't purchased yet.
-     * Uses the player's tree count from GameState to determine position.
-     * Demonstrates class interaction: calls gameState.getTreeCount().
-     * @return the next Tree to purchase, or null if all tiers are owned
+     * Resets all purchase counts back to zero (called on new game).
      */
-    public Tree getNextTree() {
-        int owned = gameState.getTreeCount();
-        // Relational operator <: check if there are still tiers remaining
-        if (owned < catalogue.size()) {
-            return catalogue.get(owned);
+    public void reset() {
+        // Loop: clear every tier's count
+        for (int i = 0; i < purchaseCounts.length; i++) {
+            purchaseCounts[i] = 0;
         }
-        return null;
     }
 
     /**
-     * Attempts to purchase the next tree in the catalogue.
+     * Returns the current scaled cost for a given tier index.
+     * Cost increases by 15% for each copy already owned.
+     * Uses Math.pow for compound scaling.
+     * @param tierIndex index into the catalogue list
+     * @return current purchase cost in apples
+     */
+    public int getScaledCost(int tierIndex) {
+        // Relational operator: guard invalid index
+        if (tierIndex < 0 || tierIndex >= catalogue.size()) {
+            return Integer.MAX_VALUE;
+        }
+        int baseCost = catalogue.get(tierIndex).getCost();
+        int owned    = purchaseCounts[tierIndex];
+        // Compound scaling: baseCost * 1.15^owned, rounded to nearest int
+        return (int) Math.round(baseCost * Math.pow(COST_SCALE, owned));
+    }
+
+    /**
+     * Returns how many of a given tier the player has purchased.
+     * @param tierIndex index into the catalogue list
+     * @return number of times this tier has been bought
+     */
+    public int getPurchaseCount(int tierIndex) {
+        // Relational: bounds check before array access
+        if (tierIndex < 0 || tierIndex >= purchaseCounts.length) {
+            return 0;
+        }
+        return purchaseCounts[tierIndex];
+    }
+
+    /**
+     * Attempts to purchase one copy of the tree at the given tier index.
      * Calls spendApples() and addTree() on GameState — class interaction.
      * Uses relational and logical operators to validate the purchase.
+     * @param tierIndex index into the catalogue list
      * @return the Tree that was purchased, or null if purchase failed
      */
-    public Tree buyNextTree() {
-        Tree next = getNextTree();
+    public Tree buyTree(int tierIndex) {
+        // Logical &&: index must be valid AND player must afford it
+        if (tierIndex < 0 || tierIndex >= catalogue.size()) {
+            return null;
+        }
 
-        // Logical operator &&: tree must exist AND player must afford it
-        if (next != null && gameState.getApples() >= next.getCost()) {
-            boolean spent = gameState.spendApples(next.getCost());
+        int  cost = getScaledCost(tierIndex);
+        Tree tree = catalogue.get(tierIndex);
+
+        // Relational >=: check affordability
+        if (gameState.getApples() >= cost) {
+            boolean spent = gameState.spendApples(cost);
             if (spent) {
-                gameState.addTree(next);
-                return next;
+                purchaseCounts[tierIndex]++;
+                gameState.addTree(tree);
+                return tree;
             }
         }
         return null;
     }
 
     /**
-     * Returns whether the player can currently afford the next tree.
-     * Demonstrates logical operator (&&) and relational operator (>=).
-     * @return true if next tree exists and player has enough apples
+     * Returns whether the player can currently afford the given tier.
+     * @param tierIndex index into the catalogue list
+     * @return true if the player has enough apples for this tier
      */
-    public boolean canAffordNext() {
-        Tree next = getNextTree();
-        // Logical &&: must have a next tree AND enough apples
-        return next != null && gameState.getApples() >= next.getCost();
+    public boolean canAfford(int tierIndex) {
+        // Logical &&: valid index AND enough apples
+        return tierIndex >= 0
+            && tierIndex < catalogue.size()
+            && gameState.getApples() >= getScaledCost(tierIndex);
     }
 
     /**
-     * Returns a formatted label for the upgrade button,
-     * showing the next tree's name and cost.
-     * Calls getNextTree() and tree.getName()/getCost() — class interaction.
-     * @return button label string
+     * Returns a formatted HTML button label for a given tier,
+     * showing name, APS gain, scaled cost, and owned count.
+     * @param tierIndex index into the catalogue list
+     * @return HTML label string for use in a JButton
      */
-    public String getUpgradeButtonLabel() {
-        Tree next = getNextTree();
-        // If statement: no more tiers available
-        if (next == null) {
-            return "MAX TIER REACHED";
+    public String getButtonLabel(int tierIndex) {
+        if (tierIndex < 0 || tierIndex >= catalogue.size()) {
+            return "???";
         }
-        return "BUY: " + next.getName() + " (" + next.getCost() + " apples)";
+        Tree tree  = catalogue.get(tierIndex);
+        int  cost  = getScaledCost(tierIndex);
+        int  owned = purchaseCounts[tierIndex];
+        return "<html><b>" + tree.getName() + "</b>"
+             + "  [+" + tree.getApsGain() + " APS]"
+             + "<br>Cost: " + cost + " apples"
+             + "  &nbsp; Owned: " + owned + "</html>";
     }
 
     /**
-     * Returns the full catalogue of trees in the shop.
-     * @return unmodifiable view of the catalogue list
+     * Returns the full catalogue of tree tiers.
+     * @return the catalogue list
      */
     public List<Tree> getCatalogue() {
         return catalogue;
+    }
+
+    /**
+     * Returns the number of tiers in the catalogue.
+     * @return catalogue size
+     */
+    public int getTierCount() {
+        return catalogue.size();
     }
 }

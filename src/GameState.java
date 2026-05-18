@@ -116,9 +116,10 @@ public class GameState {
     }
 
     /**
-     * Returns a summary string listing all purchased tree names.
-     * Demonstrates list traversal and string building with a for loop.
-     * @return comma-separated list of owned tree names, or "None" if empty
+     * Returns a summary string listing each unique tree name and how many
+     * of that type the player owns.
+     * Demonstrates list traversal with a for loop and string building.
+     * @return newline-separated "Name x Count" entries, or "None" if empty
      */
     public String getOwnedTreeSummary() {
         // Logical operator ||: check both null and empty
@@ -126,15 +127,40 @@ public class GameState {
             return "None";
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < purchasedTrees.size(); i++) {
-            // Logical operator !: not the first element, so prepend comma
-            if (i != 0) {
-                sb.append(", ");
+        // Use a LinkedHashMap to preserve insertion order while counting
+        java.util.LinkedHashMap<String, Integer> counts = new java.util.LinkedHashMap<>();
+        for (Tree t : purchasedTrees) {
+            // Logical operator !: key not yet present, initialise to 0
+            if (!counts.containsKey(t.getName())) {
+                counts.put(t.getName(), 0);
             }
-            sb.append(purchasedTrees.get(i).getName());
+            counts.put(t.getName(), counts.get(t.getName()) + 1);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (java.util.Map.Entry<String, Integer> entry : counts.entrySet()) {
+            if (sb.length() != 0) sb.append("\n");
+            sb.append(entry.getKey()).append(" x").append(entry.getValue());
         }
         return sb.toString();
+    }
+
+    /**
+     * Returns how many trees of a given name the player owns.
+     * Traverses the purchased list with a for loop and relational comparison.
+     * @param name the tree name to count
+     * @return count of matching trees owned
+     */
+    public int getCountOfTree(String name) {
+        int count = 0;
+        // Loop: traverse all purchased trees
+        for (Tree t : purchasedTrees) {
+            // Relational via .equals(): name match
+            if (t.getName().equals(name)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
