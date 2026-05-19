@@ -22,13 +22,33 @@ public class GameState {
         reset();
     }
 
+    /** Fractional apple accumulator for sub-second APS ticks. */
+    private double appleAccumulator = 0.0;
+
     /**
      * Resets the game to its initial state: no apples, no APS, no trees.
      */
     public void reset() {
-        apples = 0;
-        aps    = 0;
+        apples           = 0;
+        aps              = 0;
+        appleAccumulator = 0.0;
         purchasedTrees.clear();
+    }
+
+    /**
+     * Adds a fractional apple amount each sub-second tick.
+     * Whole apples are flushed to the integer count as they accumulate,
+     * giving smooth continuous income rather than once-per-second jumps.
+     * @param amount fractional apples to add this tick (e.g. aps / 20.0)
+     */
+    public void tickApples(double amount) {
+        appleAccumulator += amount;
+        // Flush any whole apples that have accumulated
+        if (appleAccumulator >= 1.0) {
+            int whole = (int) appleAccumulator;
+            apples           += whole;
+            appleAccumulator -= whole;
+        }
     }
 
     /**
