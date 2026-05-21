@@ -227,12 +227,16 @@ public class ScreenManager {
         clickPopLabel.setVisible(false);
         
         File imgFile = new File("tree.png");
+        
+
 
         if (imgFile.exists()) {
+        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
             ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
             Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
             treeIcon = new JLabel(new ImageIcon(resized));
         } else {
+        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
             System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
         }
         
@@ -306,6 +310,26 @@ public class ScreenManager {
      * Demonstrates class interaction: calls gameState.clickTree().
      */
     private void handleTreeClick() {
+
+        File imgFile = new File("greentree.png");
+        
+        JLabel treeIcon2 = new JLabel();
+        if (imgFile.exists()) {
+            ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
+            Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+            treeIcon2 = new JLabel(new ImageIcon(resized));
+        } else {
+        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
+            System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
+        }
+        treeIcon2.setHorizontalAlignment(SwingConstants.CENTER);
+        treeIcon2.setVerticalAlignment(SwingConstants.CENTER);
+        treeIcon2.setAlignmentX(100f);
+        treeIcon2.setAlignmentY(100f);
+        treeIcon2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        treeIcon2.setToolTipText("Click to harvest apples!");
+
+        frame.add(treeIcon);
         int earned = gameState.clickTree();
         refreshHud();
 
@@ -360,23 +384,23 @@ public class ScreenManager {
             case 0:
             	break;
             case 1:
-            	
-                File imgFile = new File("greentree.png");
-                
-                JLabel treeIcon2 = new JLabel();
-                if (imgFile.exists()) {
-                    ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
-                    Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-                    treeIcon2 = new JLabel(new ImageIcon(resized));
-                } else {
-                    System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
-                }
-                treeIcon2.setHorizontalAlignment(SwingConstants.CENTER-150);
-                treeIcon2.setVerticalAlignment(SwingConstants.CENTER+100);
-                treeIcon2.setAlignmentX(100f);
-                treeIcon2.setAlignmentY(100f);
-                treeIcon2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                treeIcon2.setToolTipText("Click to harvest apples!");
+            	//
+//                File imgFile = new File("src/pinktree.png");
+//                
+//                JLabel treeIcon2 = new JLabel();
+//                if (imgFile.exists()) {
+//                    ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
+//                    Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+//                    treeIcon2 = new JLabel(new ImageIcon(resized));
+//                } else {
+//                    System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
+//                }
+//                treeIcon2.setHorizontalAlignment(SwingConstants.CENTER);
+//                treeIcon2.setVerticalAlignment(SwingConstants.CENTER);
+//                treeIcon2.setAlignmentX(100f);
+//                treeIcon2.setAlignmentY(100f);
+//                treeIcon2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//                treeIcon2.setToolTipText("Click to harvest apples!");
                 break;
             case 2:
             case 3:
