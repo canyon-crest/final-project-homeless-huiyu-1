@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>final-project-homeless-huiyu-1</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>src/greentree.png</name>
+			<type>1</type>
+			<location>C:/Users/liangm9838/Documents/GitHub/final-project-homeless-huiyu-1/src/greentree.png</location>
+		</link>
+		<link>
+			<name>src/tree.png</name>
+			<type>1</type>
+			<location>C:/Users/liangm9838/Desktop/tree.png</location>
+		</link>
+	</linkedResources>
+</projectDescription>
