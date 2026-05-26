@@ -311,25 +311,25 @@ public class ScreenManager {
      */
     private void handleTreeClick() {
 
-        File imgFile = new File("greentree.png");
-        
-        JLabel treeIcon2 = new JLabel();
-        if (imgFile.exists()) {
-            ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
-            Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-            treeIcon2 = new JLabel(new ImageIcon(resized));
-        } else {
-        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
-            System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
-        }
-        treeIcon2.setHorizontalAlignment(SwingConstants.CENTER);
-        treeIcon2.setVerticalAlignment(SwingConstants.CENTER);
-        treeIcon2.setAlignmentX(100f);
-        treeIcon2.setAlignmentY(100f);
-        treeIcon2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        treeIcon2.setToolTipText("Click to harvest apples!");
+//        File imgFile = new File("greentree.png");
+//        
+//        JLabel treeIcon2 = new JLabel();
+//        if (imgFile.exists()) {
+//            ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
+//            Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+//            treeIcon2 = new JLabel(new ImageIcon(resized));
+//        } else {
+//        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
+//            System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
+//        }
+//        treeIcon2.setHorizontalAlignment(SwingConstants.CENTER);
+//        treeIcon2.setVerticalAlignment(SwingConstants.CENTER);
+//        treeIcon2.setAlignmentX(100f);
+//        treeIcon2.setAlignmentY(100f);
+//        treeIcon2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//        treeIcon2.setToolTipText("Click to harvest apples!");
 
-        frame.add(treeIcon);
+//        frame.add(treeIcon);
         int earned = gameState.clickTree();
         refreshHud();
 
@@ -340,7 +340,7 @@ public class ScreenManager {
         // Bounce animation: scale up then back down via font size steps
         Timer bounceTimer = new Timer(30, null);
         final int[] step = {0};
-        final int[] sizes = {150, 150, 150, 150, 150, 150};
+        final int[] sizes = {150, 160, 170, 160, 150, 150};
         bounceTimer.addActionListener(e -> {
             if (step[0] < sizes.length) {
             	treeIcon.setSize(sizes[step[0]], sizes[step[0]]);
