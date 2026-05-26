@@ -1,3 +1,5 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.net.URL;
 
@@ -6,23 +8,32 @@ public class Sound {
 	URL soundURL[] = new URL[1];
 	
 	public Sound() {
-		soundURL[0] = getClass().getResource("");
+		soundURL[0] = getClass().getResource("/music2.wav");
 	}
 	
-	public void setFile() {
+	public void setFile(int i) {
+		try {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(soundURL[0]);
+			clip = AudioSystem.getClip();
+			clip.open(ais);
+		}
 		
+		catch(Exception e) {
+			
+		}
 		
 	}
 	
 	public void play() {
-		
+		clip.start();
 	}
 	
 	public void loop() {
 		
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
 	}
 	
 	public void stop() {
-		
+		clip.stop();
 	}
 }

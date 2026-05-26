@@ -35,6 +35,8 @@ public class ScreenManager {
 
     /** The tree icon label — stored so we can animate it on click. */
     private JLabel treeIcon;
+    
+    private Sound sound;
 
     /**
      * Constructs a ScreenManager and initialises the main window.
@@ -61,6 +63,9 @@ public class ScreenManager {
         frame.add(mainContainer);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        sound = new Sound();
+        playMusic();
     }
 
     /**
@@ -501,5 +506,15 @@ public class ScreenManager {
         panel.add(backBtn);
 
         return panel;
+    }
+    
+    public void playMusic() {
+    	sound.setFile(0);
+    	sound.play();
+    	sound.loop();
+    }
+    
+    public void stopMusic() {
+    	sound.stop();
     }
 }
