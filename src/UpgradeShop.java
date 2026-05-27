@@ -21,7 +21,7 @@ public class UpgradeShop {
     /** Reference to the game state (class interaction). */
     private GameState gameState;
 
-    /** Cost scaling factor: each purchase raises cost by 15%. */
+    /** Cost scaling factor: each purchase raises cost by 20%. */
     private static final double COST_SCALE = 1.2;
 
     /**
