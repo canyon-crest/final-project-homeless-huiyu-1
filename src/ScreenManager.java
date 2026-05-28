@@ -1,6 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-
+import java.io.File;
 /**
  * Builds and manages all game screens (panels) and handles navigation
  * between them via CardLayout.
@@ -35,6 +35,8 @@ public class ScreenManager {
 
     /** The tree icon label — stored so we can animate it on click. */
     private JLabel treeIcon;
+    
+    private Sound sound;
 
     /**
      * Constructs a ScreenManager and initialises the main window.
@@ -61,6 +63,9 @@ public class ScreenManager {
         frame.add(mainContainer);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        sound = new Sound();
+        playMusic();
     }
 
     /**
@@ -225,13 +230,30 @@ public class ScreenManager {
         clickPopLabel.setAlignmentX(0.5f);
         clickPopLabel.setAlignmentY(0.2f); // float above the tree
         clickPopLabel.setVisible(false);
+        
+        File imgFile = new File("tree.png");
+        
 
-        treeIcon = new JLabel("\uD83C\uDF33");
-        treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 130));
+
+        if (imgFile.exists()) {
+        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
+            ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
+            Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+            treeIcon = new JLabel(new ImageIcon(resized));
+        } else {
+        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
+            System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
+        }
+        
+        
+//        treeIcon.setOpaque(true);
+//        treeIcon.setBackground(Color.RED);
+//        treeIcon.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+//        treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 130));
         treeIcon.setHorizontalAlignment(SwingConstants.CENTER);
         treeIcon.setVerticalAlignment(SwingConstants.CENTER);
-        treeIcon.setAlignmentX(0.5f);
-        treeIcon.setAlignmentY(0.5f);
+        treeIcon.setAlignmentX(100f);
+        treeIcon.setAlignmentY(100f);
         treeIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         treeIcon.setToolTipText("Click to harvest apples!");
 
@@ -242,6 +264,8 @@ public class ScreenManager {
                 handleTreeClick();
             }
         });
+        
+        frame.add(treeIcon);
 
         treeStack.add(clickPopLabel);
         treeStack.add(treeIcon);
@@ -291,6 +315,26 @@ public class ScreenManager {
      * Demonstrates class interaction: calls gameState.clickTree().
      */
     private void handleTreeClick() {
+
+//        File imgFile = new File("greentree.png");
+//        
+//        JLabel treeIcon2 = new JLabel();
+//        if (imgFile.exists()) {
+//            ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
+//            Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+//            treeIcon2 = new JLabel(new ImageIcon(resized));
+//        } else {
+//        	System.out.println("Java is looking for resources inside: " + getClass().getResource("/"));
+//            System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
+//        }
+//        treeIcon2.setHorizontalAlignment(SwingConstants.CENTER);
+//        treeIcon2.setVerticalAlignment(SwingConstants.CENTER);
+//        treeIcon2.setAlignmentX(100f);
+//        treeIcon2.setAlignmentY(100f);
+//        treeIcon2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//        treeIcon2.setToolTipText("Click to harvest apples!");
+
+//        frame.add(treeIcon);
         int earned = gameState.clickTree();
         refreshHud();
 
@@ -301,14 +345,16 @@ public class ScreenManager {
         // Bounce animation: scale up then back down via font size steps
         Timer bounceTimer = new Timer(30, null);
         final int[] step = {0};
-        final int[] sizes = {145, 155, 160, 155, 145, 130};
+        final int[] sizes = {150, 160, 170, 160, 150, 150};
         bounceTimer.addActionListener(e -> {
             if (step[0] < sizes.length) {
-                treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, sizes[step[0]]));
+            	treeIcon.setSize(sizes[step[0]], sizes[step[0]]);
+//                treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, sizes[step[0]]));
                 step[0]++;
             } else {
                 // Reset to base size and stop
-                treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 130));
+            	treeIcon.setSize(150,150);
+//                treeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 130));
                 bounceTimer.stop();
             }
         });
@@ -337,11 +383,42 @@ public class ScreenManager {
                 + "\nYou have: " + gameState.getApples());
             return;
         }
+        
+        if(upgradeShop.getCount(tierIndex)==1) {
+            switch (tierIndex) {
+            case 0:
+            	break;
+            case 1:
+            	//
+//                File imgFile = new File("src/pinktree.png");
+//                
+//                JLabel treeIcon2 = new JLabel();
+//                if (imgFile.exists()) {
+//                    ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
+//                    Image resized = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+//                    treeIcon2 = new JLabel(new ImageIcon(resized));
+//                } else {
+//                    System.err.println("File still not found. Absolute path tried: " + imgFile.getAbsolutePath());
+//                }
+//                treeIcon2.setHorizontalAlignment(SwingConstants.CENTER);
+//                treeIcon2.setVerticalAlignment(SwingConstants.CENTER);
+//                treeIcon2.setAlignmentX(100f);
+//                treeIcon2.setAlignmentY(100f);
+//                treeIcon2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//                treeIcon2.setToolTipText("Click to harvest apples!");
+                break;
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            }
+        	
+        }
 
         refreshHud();
 
         // If statement: check win condition via polymorphism
-        if (purchased.isWinCondition()) {
+        if (purchased.isWinCondition() && upgradeShop.getCount(tierIndex) == 1) {
             String legend = ((GoldenTree) purchased).getLegendText();
             JOptionPane.showMessageDialog(frame,
                 "You grew the Golden Delicious!\n\n\"" + legend + "\"\n\nYOU WIN! \uD83C\uDF1F",
@@ -429,5 +506,15 @@ public class ScreenManager {
         panel.add(backBtn);
 
         return panel;
+    }
+    
+    public void playMusic() {
+    	sound.setFile(0);
+    	sound.play();
+    	sound.loop();
+    }
+    
+    public void stopMusic() {
+    	sound.stop();
     }
 }

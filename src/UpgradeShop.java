@@ -21,8 +21,8 @@ public class UpgradeShop {
     /** Reference to the game state (class interaction). */
     private GameState gameState;
 
-    /** Cost scaling factor: each purchase raises cost by 15%. */
-    private static final double COST_SCALE = 1.15;
+    /** Cost scaling factor: each purchase raises cost by 20%. */
+    private static final double COST_SCALE = 1.2;
 
     /**
      * Constructs an UpgradeShop for the given GameState
@@ -43,10 +43,10 @@ public class UpgradeShop {
     private void buildCatalogue() {
         catalogue.add(new FruitTree("Honeycrisp",  100,    10,   "Apple"));
         catalogue.add(new FruitTree("Granny Smith", 450,   50,   "Apple"));
-        catalogue.add(new FruitTree("Fuji",         25000, 300,  "Apple"));
-        catalogue.add(new FruitTree("Gala",         90000, 1000, "Apple"));
-        catalogue.add(new FruitTree("Ambrosia",     500000, 8000, "Apple"));
-        catalogue.add(new GoldenTree("Golden Delicious", 1000000, 100,
+        catalogue.add(new FruitTree("Fuji",         2550, 300,  "Apple"));
+        catalogue.add(new FruitTree("Gala",         24000, 1000, "Apple"));
+        catalogue.add(new FruitTree("Ambrosia",     360000, 8000, "Apple"));
+        catalogue.add(new GoldenTree("Golden Delicious", 1000000, 10000,
                 "The legendary tree of infinite harvest."));
     }
 
@@ -117,6 +117,10 @@ public class UpgradeShop {
             }
         }
         return null;
+    }
+    
+    public int getCount(int tierIndex) {
+    	return purchaseCounts[tierIndex];
     }
 
     /**

@@ -14,4 +14,21 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>greentree.png</name>
+			<type>1</type>
+			<location>C:/Users/liangm9838/Documents/GitHub/final-project-homeless-huiyu-1/src/greentree.png</location>
+		</link>
+		<link>
+			<name>music/music.mp4</name>
+			<type>1</type>
+			<location>C:/Users/liangm9838/Downloads/music.mp4</location>
+		</link>
+		<link>
+			<name>music/music2.wav</name>
+			<type>1</type>
+			<location>C:/Users/liangm9838/Downloads/music2.wav</location>
+		</link>
+	</linkedResources>
 </projectDescription>
